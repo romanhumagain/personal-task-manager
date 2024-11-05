@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_task/pages/Home.dart';
 import 'package:quick_task/pages/Profile.dart';
 import 'package:quick_task/pages/dashboard.dart';
+import 'package:quick_task/pages/login.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -80,8 +81,8 @@ class _SplashScreenState extends State<SplashScreen> {
               child: GestureDetector(
                 onTap: () {
                   print("Clicked");
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginPage()));
                 },
                 child: Material(
                   elevation: 8,
