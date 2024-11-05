@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 class MyButton extends StatefulWidget {
+  final Function onTap;
   final String text;
   final Size size;
 
-  const MyButton({super.key, required this.size, required this.text});
+  const MyButton(
+      {super.key, required this.size, required this.text, required this.onTap});
 
   @override
   State<MyButton> createState() => _MyButtonState();
@@ -18,26 +20,28 @@ class _MyButtonState extends State<MyButton> {
       child: Material(
         elevation: 5,
         borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 60),
-          decoration: BoxDecoration(
-              gradient:
-                  LinearGradient(colors: const [Colors.pink, Colors.blue]),
-              borderRadius: BorderRadius.circular(20)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                widget.text,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20),
-              ),
-            ],
+        child: GestureDetector(
+          onTap: () {
+            widget.onTap();
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 7),
+            decoration: BoxDecoration(
+                gradient:
+                    LinearGradient(colors: const [Colors.pink, Colors.blue]),
+                borderRadius: BorderRadius.circular(20)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.text,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 20),
+                ),
+              ],
+            ),
           ),
         ),
       ),
