@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:quick_task/common/my_button.dart';
+import 'package:quick_task/common/my_snackbar.dart';
 import 'package:quick_task/common/my_textfield.dart';
 import 'package:quick_task/pages/Home.dart';
 import 'package:quick_task/pages/register.dart';
+import 'package:quick_task/services/user_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,9 +17,36 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _handleLogin() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => Home()));
+  void _handleLogin() async {
+    UserServices userServices = UserServices();
+    final loginCredentials = {
+      'username': _emailController.text,
+      'password': _passwordController.text
+    };
+
+    try {
+      bool isLoginSuccess = await userServices.loginUser(loginCredentials);
+      if (isLoginSuccess) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+        final snackBar = MySnackbar(
+            message: "Successfully Login User.", messageType: "success");
+        ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+      } else {
+        final snackBar = MySnackbar(
+            message:
+                "Login failed. Please check your credentials or try again later.",
+            messageType: "error");
+        ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+      }
+    } catch (e) {
+      final snackBar = MySnackbar(
+          message: "An error occurred. Please try again later.",
+          messageType: "error");
+      ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+    }
   }
 
   @override
