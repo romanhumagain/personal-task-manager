@@ -8,16 +8,17 @@ class MyTextfield extends StatefulWidget {
   final Icon? suffixIcon;
   final Icon? prefixIcon;
   final bool isObsecureText;
+  final String? Function(String?)? validator;
 
-  MyTextfield({
-    super.key,
-    required this.textFieldController,
-    required this.isObsecureText,
-    this.hintText,
-    this.labelText,
-    this.prefixIcon,
-    this.suffixIcon,
-  });
+  MyTextfield(
+      {super.key,
+      required this.textFieldController,
+      required this.isObsecureText,
+      this.hintText,
+      this.labelText,
+      this.prefixIcon,
+      this.suffixIcon,
+      this.validator});
 
   @override
   State<MyTextfield> createState() => _MyTextfieldState();
@@ -42,16 +43,11 @@ class _MyTextfieldState extends State<MyTextfield> {
   Widget build(BuildContext context) {
     return Container(
       decoration:
-          BoxDecoration(borderRadius: BorderRadius.circular(20), boxShadow: [
-        // BoxShadow(
-        //     color: Colors.grey.withOpacity(0.5),
-        //     spreadRadius: 1,
-        //     blurRadius: 10,
-        //     offset: Offset(0, 4))
-      ]),
-      child: TextField(
+          BoxDecoration(borderRadius: BorderRadius.circular(20), boxShadow: []),
+      child: TextFormField(
         controller: widget.textFieldController,
         obscureText: _isObscured,
+        validator: widget.validator,
         decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
           focusedBorder: OutlineInputBorder(

@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 class UserSerializers(ModelSerializer):
   class Meta:
-    model : User
+    model = User
     fields = ['id','username', 'email', 'password']
     extra_kwargs = {
       'id': {'read_only':True},
@@ -23,12 +23,12 @@ class UserSerializers(ModelSerializer):
   
   def validate_email(self, value):
     if User.objects.filter(email = value).exists():
-      return serializers.ValidationError("A user with this email already exists !")
+      raise serializers.ValidationError("A user with this email already exists !")
     return value
   
   def validate_username(self, value):
     if User.objects.filter(username = value).exists():
-      return serializers.ValidationError("A user with this username already exists !")
+      raise serializers.ValidationError("A user with this username already exists !")
     return value
   
   

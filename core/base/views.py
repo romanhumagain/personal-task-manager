@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import viewsets, mixins, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import UserSerializers
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -29,6 +30,7 @@ class MyTokenOptainPairView(TokenObtainPairView):
 class RegisterUserAPIView(generics.CreateAPIView):
   serializer_class = UserSerializers
   permission_classes = [AllowAny]
+  authentication_classes = []
   
   def post(self, request, *args, **kwargs):
     data = request.data
