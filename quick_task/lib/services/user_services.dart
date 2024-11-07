@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:quick_task/models/user_model.dart';
+import 'package:quick_task/services/auth_services.dart';
 
 class UserServices {
   final String baseURL = 'http://10.0.2.2:8000/api';
@@ -17,7 +18,12 @@ class UserServices {
       );
 
       if (response.statusCode == 201) {
-        return UserModel.fromJson(json.decode(response.body));
+        final responseData = jsonDecode(response.body);
+
+        final AuthServices authServices = AuthServices();
+        await authServices.saveTokens(
+            responseData['refresh'], responseData['access']);
+        return UserModel.fromJson(responseData);
       } else {
         final errorResponse = json.decode(response.body);
         throw Exception(

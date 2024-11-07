@@ -3,6 +3,7 @@ import 'package:quick_task/pages/Home.dart';
 import 'package:quick_task/pages/Profile.dart';
 import 'package:quick_task/pages/dashboard.dart';
 import 'package:quick_task/pages/login.dart';
+import 'package:quick_task/services/auth_services.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,6 +13,43 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final AuthServices authServices = AuthServices();
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkUserLoginStatus();
+  }
+
+  // Function to check the login status and refresh the token if necessary
+  void checkUserLoginStatus() async {
+    bool loggedIn = await authServices.isLoggedIn();
+
+    // If user is logged in, skip refreshing the token
+    if (loggedIn) {
+      setState(() {
+        isLoggedIn = true;
+      });
+      return;
+    }
+
+    // If not logged in, try refreshing the access token
+    try {
+      await authServices.refreshAccessToken();
+      loggedIn = await authServices.isLoggedIn(); // Check again after refresh
+      setState(() {
+        isLoggedIn = loggedIn;
+      });
+    } catch (e) {
+      // Handle any errors during refresh (e.g., token expiration)
+      print("Error refreshing token: $e");
+      setState(() {
+        isLoggedIn = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -61,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 10.0, horizontal: 36.5),
                           child: Text(
-                            "Effortlessly manage your tasks, prioritize what will matters most, and stay productive throughout day.",
+                            "Effortlessly manage your tasks, prioritize what will matter most, and stay productive throughout the day.",
                             style: TextStyle(
                                 fontWeight: FontWeight.normal,
                                 color: Colors.black45),
@@ -80,9 +118,11 @@ class _SplashScreenState extends State<SplashScreen> {
               padding: const EdgeInsets.only(bottom: 100.0),
               child: GestureDetector(
                 onTap: () {
-                  print("Clicked");
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginPage()));
+                  isLoggedIn
+                      ? Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => Home()))
+                      : Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => LoginPage()));
                 },
                 child: Material(
                   elevation: 8,
@@ -118,7 +158,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,10 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:quick_task/common/my_button.dart';
 import 'package:quick_task/common/my_snackbar.dart';
 import 'package:quick_task/common/my_textfield.dart';
 import 'package:quick_task/pages/Home.dart';
 import 'package:quick_task/pages/register.dart';
-import 'package:quick_task/services/user_services.dart';
+import 'package:http/http.dart' as http;
+import 'package:quick_task/services/auth_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,19 +17,31 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final AuthServices authServices = AuthServices();
+
+  final String baseURL = 'http://10.0.2.2:8000/api';
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _handleLogin() async {
-    UserServices userServices = UserServices();
+  Future _loginUser() async {
+    final String URL = '$baseURL/token/';
+
     final loginCredentials = {
       'username': _emailController.text,
       'password': _passwordController.text
     };
-
     try {
-      bool isLoginSuccess = await userServices.loginUser(loginCredentials);
-      if (isLoginSuccess) {
+      final response = await http.post(
+        Uri.parse(URL),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(loginCredentials),
+      );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        await authServices.saveTokens(
+            responseData['refresh'], responseData['access']);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => Home()),
@@ -34,10 +49,14 @@ class _LoginPageState extends State<LoginPage> {
         final snackBar = MySnackbar(
             message: "Successfully Login User.", messageType: "success");
         ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
-      } else {
+      } else if (response.statusCode == 401) {
         final snackBar = MySnackbar(
-            message:
-                "Login failed. Please check your credentials or try again later.",
+            message: "Login failed. Please check your credentials .",
+            messageType: "error");
+        ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+      } else if (response.statusCode == 400) {
+        final snackBar = MySnackbar(
+            message: "An error occurred. Please try again later.",
             messageType: "error");
         ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
       }
@@ -120,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                 MyButton(
                   size: size,
                   text: "L O G I N",
-                  onTap: _handleLogin,
+                  onTap: _loginUser,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

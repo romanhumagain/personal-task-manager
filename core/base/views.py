@@ -7,6 +7,7 @@ from .serializers import UserSerializers
 from django.contrib.auth.models import User
 from rest_framework import status
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -36,8 +37,20 @@ class RegisterUserAPIView(generics.CreateAPIView):
     data = request.data
     serializer = self.get_serializer(data = data)
     if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
+      user = serializer.save()
+      refresh = RefreshToken.for_user(user)
+      refresh['id'] = user.id
+      refresh['username'] = user.username
+      refresh['email'] = user.email
+      access_token = str(refresh.access_token)
+      
+      response_data = {
+        'detail':'User created successfully !',
+        'refresh':str(refresh),
+        'access':access_token,
+      }
+      
+      return Response(response_data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
   
   
