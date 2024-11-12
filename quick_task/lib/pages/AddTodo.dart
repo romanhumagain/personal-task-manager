@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quick_task/common/my_snackbar.dart';
+import 'package:quick_task/services/todo_services.dart';
+import 'package:intl/intl.dart';
 
 class Addtodo extends StatefulWidget {
   const Addtodo({super.key});
@@ -11,7 +14,9 @@ class _AddtodoState extends State<Addtodo> {
   final List<String> _category = ['Blogify', 'Flutter', 'Django', 'C#'];
   String? _selectedCategory;
   String? _selectedPriority;
+  bool _isLoading = false;
 
+  final TextEditingController _todoTitleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
 
@@ -30,15 +35,54 @@ class _AddtodoState extends State<Addtodo> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  void _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
     if (pickedTime != null) {
       setState(() {
-        // Format time to HH:MM AM/PM
-        _timeController.text = pickedTime.format(context);
+        // Format time to HH:mm:ss (with seconds added as zero)
+        final formattedTime =
+            '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}:00';
+        _timeController.text = formattedTime;
+      });
+    }
+  }
+
+  void addTodo() async {
+    print("time is " + _timeController.text);
+    TodoServices todoServices = TodoServices();
+
+    final todoData = {
+      'title': _todoTitleController.text,
+      'date': _dateController.text,
+      'time': _timeController.text,
+      'priority': _selectedPriority,
+      'category': 1
+    };
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final todo = await todoServices.addTodo(todoData);
+      final snackBar = MySnackbar(
+          message: "Todo added successfully", messageType: 'success');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+
+      _todoTitleController.clear();
+      _dateController.clear();
+      _timeController.clear();
+      _selectedPriority = null;
+      _selectedCategory = null;
+    } catch (e) {
+      final snackBar =
+          MySnackbar(message: "Failed to add todo $e", messageType: 'error');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -192,8 +236,9 @@ class _AddtodoState extends State<Addtodo> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const TextField(
-                                      decoration: InputDecoration(
+                                    TextField(
+                                      controller: _todoTitleController,
+                                      decoration: const InputDecoration(
                                         labelText: "Your Todo",
                                         border: UnderlineInputBorder(
                                             borderSide:
@@ -438,39 +483,44 @@ class _AddtodoState extends State<Addtodo> {
                                           elevation: 5,
                                           borderRadius:
                                               BorderRadius.circular(20),
-                                          child: Container(
-                                            width: size.width / 1.5,
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 10.0, horizontal: 60),
-                                            decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                    colors: const [
-                                                      Colors.pink,
-                                                      Colors.blue
-                                                    ]),
-                                                borderRadius:
-                                                    BorderRadius.circular(20)),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: const [
-                                                Icon(
-                                                  Icons.task,
-                                                  size: 25,
-                                                  color: Colors.white,
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                  "Add Todo",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 18),
-                                                ),
-                                              ],
+                                          child: GestureDetector(
+                                            onTap: addTodo,
+                                            child: Container(
+                                              width: size.width / 1.5,
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 10.0,
+                                                  horizontal: 60),
+                                              decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                      colors: const [
+                                                        Colors.pink,
+                                                        Colors.blue
+                                                      ]),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20)),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: const [
+                                                  Icon(
+                                                    Icons.task,
+                                                    size: 25,
+                                                    color: Colors.white,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(
+                                                    "Add Todo",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: 18),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),

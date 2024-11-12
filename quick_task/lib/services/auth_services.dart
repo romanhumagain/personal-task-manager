@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:quick_task/api/base_endpoint.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
@@ -43,7 +44,7 @@ class AuthServices {
 // to refresh the access token through accesstoken
   Future<void> refreshAccessToken() async {
     final refreshToken = await getRefreshToken();
-    const url = "http://127.0.0.1:8000/api/token/refresh/";
+    const url = "${BaseEndpoint.baseUrl}/token/refresh/";
 
     if (refreshToken != null) {
       try {
