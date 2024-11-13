@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:quick_task/common/my_snackbar.dart';
+import 'package:quick_task/models/todo_model.dart';
 import 'package:quick_task/services/todo_services.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../api/base_endpoint.dart';
+import '../services/auth_services.dart';
 
 class Addtodo extends StatefulWidget {
   const Addtodo({super.key});
@@ -42,18 +47,16 @@ class _AddtodoState extends State<Addtodo> {
     );
     if (pickedTime != null) {
       setState(() {
-        // Format time to HH:mm:ss (with seconds added as zero)
+        // Format time to HH:mm:ss with seconds set to "00" to match Django's TimeField format
         final formattedTime =
             '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}:00';
-        _timeController.text = formattedTime;
+        _timeController.text = formattedTime; // This can now be sent to Django
       });
     }
   }
 
-  void addTodo() async {
-    print("time is " + _timeController.text);
-    TodoServices todoServices = TodoServices();
-
+  Future addTodo() async {
+    AuthServices authServices = AuthServices();
     final todoData = {
       'title': _todoTitleController.text,
       'date': _dateController.text,
@@ -63,28 +66,46 @@ class _AddtodoState extends State<Addtodo> {
     };
 
     try {
-      setState(() {
-        _isLoading = true;
-      });
-      final todo = await todoServices.addTodo(todoData);
-      final snackBar = MySnackbar(
-          message: "Todo added successfully", messageType: 'success');
-      ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+      const url = '${BaseEndpoint.baseUrl}/task/';
+      final accessToken = await authServices.getAccessToken();
 
-      _todoTitleController.clear();
-      _dateController.clear();
-      _timeController.clear();
-      _selectedPriority = null;
-      _selectedCategory = null;
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken'
+        },
+        body: json.encode(todoData),
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        final snackBar = MySnackbar(
+            message: "Todo added successfully", messageType: 'success');
+        ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+        clearFields();
+      } else if (response.statusCode == 400) {
+        final snackBar = MySnackbar(
+            message: "Provide details in a valid way !", messageType: 'error');
+        ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
+      } else if (response.statusCode == 401) {
+        await authServices.logoutUser();
+        throw Exception("Unauthorized. Please log in again.");
+      } else {
+        throw Exception(
+            "Unexpected error: ${response.statusCode} - ${response.body}");
+      }
     } catch (e) {
-      final snackBar =
-          MySnackbar(message: "Failed to add todo $e", messageType: 'error');
-      ScaffoldMessenger.of(context).showSnackBar(snackBar.showSnackBar());
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      throw Exception('Error during Adding Todo: $e');
     }
+  }
+
+  void clearFields() {
+    _todoTitleController.clear();
+    _dateController.clear();
+    _timeController.clear();
+    _selectedPriority = null;
+    _selectedCategory = null;
   }
 
   @override

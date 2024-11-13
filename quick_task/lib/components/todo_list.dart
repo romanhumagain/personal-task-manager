@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TodoList extends StatefulWidget {
   final Size size;
   final bool isCompleted;
   final String todo;
   final Color color;
+  final DateTime time;
+  final String priority;
 
   const TodoList(
       {super.key,
       required this.size,
       required this.isCompleted,
       required this.todo,
-      required this.color});
+      required this.color,
+      required this.time,
+      required this.priority});
 
   @override
   State<TodoList> createState() => _TodoListState();
 }
 
 class _TodoListState extends State<TodoList> {
+  @override
+  String formatTime(DateTime time) {
+    final DateFormat dateFormat = DateFormat("dd MMM hh:mm a"); // AM/PM format
+    return dateFormat.format(time);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -69,9 +80,9 @@ class _TodoListState extends State<TodoList> {
                                 size: 24,
                               ),
                               const SizedBox(width: 10),
-                              const Text(
-                                "07:00 AM",
-                                style: TextStyle(
+                              Text(
+                                formatTime(widget.time),
+                                style: const TextStyle(
                                     color: Colors.black38, fontSize: 13),
                               ),
                               const SizedBox(width: 10),

@@ -41,4 +41,31 @@ class TodoServices {
           'Error during Adding Todo: $e'); // Append original exception
     }
   }
+
+  Future<List<TodoModel>?> fetchTodo() async {
+    const url = '${BaseEndpoint.baseUrl}/task';
+    AuthServices authServices = AuthServices();
+    final accessToken = await authServices.getAccessToken();
+    try {
+      final response = await http.get(Uri.parse(url), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken'
+      });
+      if (response.statusCode == 200) {
+        final List<dynamic> responseDate = await json.decode(response.body);
+
+        // maping each item in the list to a TodoModel
+        return responseDate.map((item) => TodoModel.fromJson(item)).toList();
+      } else if (response.statusCode == 401) {
+        await authServices.logoutUser();
+        throw Exception("Unauthorized. Please log in again.");
+      } else {
+        print('Error: ${response.statusCode}, ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      return null;
+    }
+  }
 }

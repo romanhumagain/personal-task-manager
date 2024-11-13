@@ -7,6 +7,7 @@ from .serializers import CategorySerializer, TaskSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from .models import Task, Category
+from rest_framework.filters import OrderingFilter, SearchFilter
 
 class CategoryAddApiView(generics.ListCreateAPIView):
   permission_classes = [IsAuthenticated] 
@@ -33,9 +34,16 @@ class CategoryAddApiView(generics.ListCreateAPIView):
 class TaskListCreateApiView(generics.ListCreateAPIView):
   permission_classes = [IsAuthenticated]
   serializer_class = TaskSerializer
+  filter_backends = [OrderingFilter]
+  ordering_fields = ['priority', 'date', 'time'] 
+  ordering = ['-date', '-time'] 
+  
+  def get_queryset(self):
+    queryset = Task.objects.filter(user=self.request.user).order_by('-date', '-time')
+    return queryset
   
   def get(self, request, *args, **kwargs):
-    task = Task.objects.filter(user = request.user)
+    task = self.get_queryset()
     if task.exists():
       serializer = self.get_serializer(task, many = True)
       return Response(serializer.data, status=status.HTTP_200_OK)

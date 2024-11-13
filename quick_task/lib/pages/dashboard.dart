@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:quick_task/components/dashboard_top_section.dart';
 import 'package:quick_task/components/todo_list.dart';
+import 'package:quick_task/models/todo_model.dart';
+import 'package:quick_task/services/todo_services.dart';
 
 import '../components/bottom_navigation.dart';
 import '../components/todo_category.dart';
@@ -21,6 +23,33 @@ class _DashboardState extends State<Dashboard> {
     Colors.green,
     Colors.deepOrange
   ];
+
+  Future<List<TodoModel>?>? _futureTodos;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureTodos = _fetchTodoData();
+  }
+
+  Future<List<TodoModel>?> _fetchTodoData() async {
+    TodoServices todoServices = TodoServices();
+    final response = await todoServices.fetchTodo();
+    return response;
+  }
+
+  Color getPriorityColor(String priority) {
+    switch (priority) {
+      case 'Low':
+        return Colors.green;
+      case 'Medium':
+        return Colors.orangeAccent;
+      case 'High':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,11 +119,12 @@ class _DashboardState extends State<Dashboard> {
               height: 10,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
                   child: Container(
+                    padding: EdgeInsets.only(bottom: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -108,18 +138,39 @@ class _DashboardState extends State<Dashboard> {
                                 color: Colors.black54),
                           ),
                         ),
-                        TodoList(
-                          size: size,
-                          isCompleted: true,
-                          todo: "Completing Elevator GUI",
-                          color: Colors.red,
-                        ),
-                        TodoList(
-                          size: size,
-                          isCompleted: false,
-                          todo: "Authentication in the QuickTask",
-                          color: Colors.yellow,
-                        ),
+                        FutureBuilder(
+                            future: _futureTodos,
+                            builder: (context, snapshot) {
+                              // Handle different states of the future
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else if (snapshot.hasData) {
+                                final todos = snapshot.data!;
+
+                                return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: todos.length,
+                                    itemBuilder: (context, index) {
+                                      final todo = todos[index];
+                                      return TodoList(
+                                          size: size,
+                                          isCompleted: todo.is_completed,
+                                          todo: todo.title,
+                                          color:
+                                              getPriorityColor(todo.priority),
+                                          time: todo.time,
+                                          priority: todo.priority);
+                                    });
+                              } else {
+                                return Center(child: Text('No data available'));
+                              }
+                            }),
                       ],
                     ),
                   ),
