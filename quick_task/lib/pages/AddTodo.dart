@@ -232,7 +232,7 @@ class _AddtodoState extends State<Addtodo> {
                     height: size.height - size.height / 5,
                     width: size.width,
                     decoration: BoxDecoration(
-                      color: Colors.white, // Fixed color to white
+                      // Fixed color to white
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(30),
                           topLeft: Radius.circular(30)),
@@ -245,7 +245,6 @@ class _AddtodoState extends State<Addtodo> {
                             Text(
                               "Add TODO",
                               style: TextStyle(
-                                  color: Colors.black,
                                   fontSize: 20,
                                   fontWeight: FontWeight
                                       .w600), // Changed text color to black
@@ -305,7 +304,12 @@ class _AddtodoState extends State<Addtodo> {
                                                     SizedBox(
                                                       width: 5,
                                                     ),
-                                                    Text('Low'),
+                                                    Text(
+                                                      'Low',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Colors.black54),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -341,7 +345,12 @@ class _AddtodoState extends State<Addtodo> {
                                                     SizedBox(
                                                       width: 5,
                                                     ),
-                                                    Text('Medium'),
+                                                    Text(
+                                                      'Medium',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Colors.black54),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -377,7 +386,12 @@ class _AddtodoState extends State<Addtodo> {
                                                     SizedBox(
                                                       width: 5,
                                                     ),
-                                                    Text('High'),
+                                                    Text(
+                                                      'High',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Colors.black54),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -395,7 +409,9 @@ class _AddtodoState extends State<Addtodo> {
                                         hint: Text(
                                           "Select Category",
                                           style: TextStyle(
-                                              color: Colors.grey[700],
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onBackground,
                                               fontSize: 17), // Hint color
                                         ),
                                         value: _selectedCategory,
@@ -455,7 +471,9 @@ class _AddtodoState extends State<Addtodo> {
                                                   },
                                                   child: Icon(
                                                       Icons.calendar_today,
-                                                      color: Colors.black54),
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onBackground),
                                                 ),
                                                 // Calendar icon for date
                                               ],
@@ -484,7 +502,9 @@ class _AddtodoState extends State<Addtodo> {
                                                     _selectTime(context);
                                                   },
                                                   child: Icon(Icons.access_time,
-                                                      color: Colors.black54),
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onBackground),
                                                 ),
                                                 // Time icon for time input
                                               ],

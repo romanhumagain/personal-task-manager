@@ -3,7 +3,6 @@ import 'package:quick_task/components/dashboard_top_section.dart';
 import 'package:quick_task/components/todo_list.dart';
 import 'package:quick_task/models/todo_model.dart';
 import 'package:quick_task/services/todo_services.dart';
-
 import '../components/bottom_navigation.dart';
 import '../components/todo_category.dart';
 
@@ -56,7 +55,6 @@ class _DashboardState extends State<Dashboard> {
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Container(
-        color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -71,9 +69,9 @@ class _DashboardState extends State<Dashboard> {
               child: Text(
                 "Task Category",
                 style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             Row(
@@ -133,9 +131,9 @@ class _DashboardState extends State<Dashboard> {
                           child: Text(
                             "Today - A L L ",
                             style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                         FutureBuilder(

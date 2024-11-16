@@ -22,7 +22,8 @@ class _TodoCategoryState extends State<TodoCategory> {
           height: 45,
           padding: EdgeInsets.all(12.0),
           decoration: BoxDecoration(
-              color: widget.color, borderRadius: BorderRadius.circular(12)),
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(12)),
           child: Center(
             child: Text(
               widget.category,

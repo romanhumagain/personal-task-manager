@@ -18,22 +18,17 @@ class _BottomNavigationState extends State<BottomNavigation> {
   final List<Widget> _pages = [
     Dashboard(),
     Addtodo(),
-    Center(
-      child: Text('Profile Page'),
-    )
+    Profile(),
   ];
 
   @override
   void initState() {
-    // TODO: implement initState
-    _pageController = PageController();
-
     super.initState();
+    _pageController = PageController();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _pageController.dispose();
     super.dispose();
   }
@@ -47,7 +42,17 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Ensure a non-nullable Color is passed to backgroundColor
+    final backgroundColor = theme.brightness == Brightness.dark
+        ? Colors.grey[850] ?? Colors.black // Fallback color for dark mode
+        : theme.bottomNavigationBarTheme.backgroundColor ??
+            Colors.grey.shade200;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      // Ensure scaffold bg is set properly
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -55,29 +60,29 @@ class _BottomNavigationState extends State<BottomNavigation> {
             _selectedIndex = index;
           });
         },
-        children: [Dashboard(), Addtodo(), Profile()],
+        children: _pages,
       ),
       bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.grey.shade300,
+        backgroundColor: backgroundColor, // Adjust the background color here
         height: 60,
-        items: const <Widget>[
+        items: <Widget>[
           Icon(
             Icons.home,
             size: 28,
-            color: Colors.blue,
+            color: theme.colorScheme.primary,
           ),
           Icon(
             Icons.add_circle_outlined,
             size: 40,
-            color: Colors.pink,
+            color: theme.colorScheme.secondary,
           ),
           Icon(
             Icons.person,
             size: 28,
-            color: Colors.blue,
-          )
+            color: theme.colorScheme.primary,
+          ),
         ],
-        onTap: (index) {},
+        onTap: _onTapped,
       ),
     );
   }

@@ -47,7 +47,7 @@ class _TodoListState extends State<TodoList> {
                 width: widget.size.height / 2.4,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.white70),
+                    color: Theme.of(context).colorScheme.tertiary),
                 child: Row(
                   children: [
                     Padding(
@@ -82,14 +82,20 @@ class _TodoListState extends State<TodoList> {
                               const SizedBox(width: 10),
                               Text(
                                 formatTime(widget.time),
-                                style: const TextStyle(
-                                    color: Colors.black38, fontSize: 13),
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiary,
+                                    fontSize: 13),
                               ),
                               const SizedBox(width: 10),
                               Text(
                                 widget.todo,
                                 style: TextStyle(
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiary
+                                        .withOpacity(0.6),
                                     fontWeight: FontWeight.w500,
                                     fontSize: 15),
                               ),
